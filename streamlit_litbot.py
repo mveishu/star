@@ -6,6 +6,40 @@ import smtplib
 import requests
 import time
 
+def check_inappropriate_content(user_message):
+    """부적절한 발언 감지 (문맥 고려)"""
+    
+    # 명확히 부적절한 표현들만
+    clearly_inappropriate = [
+        "ㅂㅅ", "병신", "미친놈", "미친년",
+        "꺼져", "씨발", "존나", "개새끼"
+    ]
+    
+    # 차별적 맥락에서 사용될 때만 문제가 되는 표현들 (더 정교하게 체크)
+    context_sensitive = {
+        "여자는": ["원래", "다", "항상", "역시"],  # "여자는 원래 그래" 같은 표현
+        "남자는": ["원래", "다", "항상", "역시"],  # "남자는 다 그래" 같은 표현
+        "죽어": ["버려", "라", "야지"],           # "죽어버려" 같은 표현 (소설 인용은 괜찮)
+    }
+    
+    # 명확히 부적절한 표현 체크
+    for keyword in clearly_inappropriate:
+        if keyword in user_message:
+            return True, keyword
+    
+    # 맥락을 고려한 체크
+    for main_word, trigger_words in context_sensitive.items():
+        if main_word in user_message:
+            for trigger in trigger_words:
+                if trigger in user_message:
+                    return True, main_word + " " + trigger
+    
+    return False, None
+
+def create_feedback_message(inappropriate_expression):
+    """부적절한 발언에 대한 피드백 메시지 생성"""
+    return f"어? 지금 '{inappropriate_expression}' 표현이 좀 그런 것 같아. 우리 서로 존중하면서 문학 이야기하자. 다시 말해줄래?"
+
 def analyze_review_for_final_question(review_content, conversation_messages):
     """감상문에서 아직 다루지 않은 주요 포인트 찾기"""
     
