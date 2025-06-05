@@ -230,16 +230,15 @@ if uploaded_review and not st.session_state.start_time:
     })
 
     first_question = get_claude_response(
-        [{"role": "user", "content": "감상문에서 인상 깊은 한 문장을 언급하고, 간결하게 느낌을 말한 뒤 짧고 간결하게 질문해줘."}],
-        f"""
-너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야.
-작품 요약:
-{novel_content}
+    [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘. '나는 네가 A부분에서 B에 주목한 게 인상적이었어. 왜냐면 나는 같은 장면에서 C가 더 신경쓰였거든' 같은 방식으로"}],
+    f"""
+너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 같은 책을 읽은 친구처럼 행동해.
+작품 전문: {novel_content[:1000]}
+{user_name}의 감상문: {st.session_state.file_content}
 
-{user_name}의 감상문 요약:
-{st.session_state.file_content[:400]}  # 요약 대신 앞부분 사용 가능
+감상문에서 언급된 내용에 대해 다른 시각을 제시하면서 자연스럽게 대화를 시작해.
 """
-    )
+)
     st.session_state.messages.append({"role": "assistant", "content": first_question})
 
 elapsed = time.time() - st.session_state.start_time if st.session_state.start_time else 0
