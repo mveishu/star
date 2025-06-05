@@ -66,8 +66,10 @@ def send_email_with_attachment(file, subject, body, filename):
         smtp.login(st.secrets["email"]["user"], st.secrets["email"]["password"])
         smtp.send_message(msg)
 
+st.markdown("""
 <h1 style='text-align: left;'>📚 문학 토론 챗봇 - 리토:</h1>
 <h3 style='text-align: right; margin-top: -20px;'>황순원, <별> 🌟</h3>
+""", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:
