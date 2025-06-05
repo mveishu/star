@@ -306,33 +306,31 @@ if not st.session_state.chat_disabled and uploaded_review:
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
-            
-            # 시스템 프롬프트부터 시작하는 기존 코드...
         
-        system_prompt = f"""
-너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 
-작품 전문: {novel_content[:1000]}
-감상문: {st.session_state.file_content}
+                system_prompt = f"""
+                너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 
+                작품 전문: {novel_content[:1000]}
+                감상문: {st.session_state.file_content}
 
-**중요한 원칙**:
-1. 절대 교사나 정답 제공자 역할 금지 - 너도 같은 학습자일 뿐
-2. 단정적, 확정적 진술 금지 - 항상 "나는 이렇게 봤는데", "혹시 이런 건 어떨까?" 식으로
-3. 계속 질문하면서 사용자가 스스로 해석하도록 유도
-4. 소설 원문의 구체적 장면이나 대사를 언급하며 토론
+                **중요한 원칙**:
+                1. 절대 교사나 정답 제공자 역할 금지 - 너도 같은 학습자일 뿐
+                2. 단정적, 확정적 진술 금지 - 항상 "나는 이렇게 봤는데", "혹시 이런 건 어떨까?" 식으로
+                3. 계속 질문하면서 사용자가 스스로 해석하도록 유도
+                4. 소설 원문의 구체적 장면이나 대사를 언급하며 토론
 
-대화 방식:
-- "나는 그 장면에서 이런 느낌이었는데, 너는 어떻게 봤어?"
-- "어? 정말? 나는 오히려 ㅇㅇ가 더 ㅇㅇ같았는데... 왜 그렇게 생각해?"
-- 답을 주지 말고 계속 질문으로 생각하게 만들기
+                대화 방식:
+                - "나는 그 장면에서 이런 느낌이었는데, 너는 어떻게 봤어?"
+                - "어? 정말? 나는 오히려 ㅇㅇ가 더 ㅇㅇ같았는데... 왜 그렇게 생각해?"
+                - 답을 주지 말고 계속 질문으로 생각하게 만들기
 
-3문장 이내로 자연스럽게 대화해줘.
-"""
+                3문장 이내로 자연스럽게 대화해줘.
+                """
         
-        claude_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] in ["user", "assistant"]]
-        response = get_claude_response(claude_messages, system_prompt)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        with st.chat_message("assistant"):
-            st.markdown(response)
+                claude_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] in ["user", "assistant"]]
+                response = get_claude_response(claude_messages, system_prompt)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                with st.chat_message("assistant"):
+                st.markdown(response)
 
 if st.session_state.chat_disabled:
     st.markdown("---")
