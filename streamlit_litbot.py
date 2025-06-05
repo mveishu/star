@@ -36,24 +36,171 @@ else:
     """
     st.warning("⚠️ 소설 전문 로딩 실패, 요약 사용 중")
 
-def get_claude_response(conversation_history, system_prompt):
+# 토론 패턴 감지 및 반문 생성 함수 추가
+import random
+
+def analyze_user_sentiment(text):
+    """사용자 의견의 감정과 관점을 분석"""
+    positive_keywords = ['좋다', '훌륭하다', '감동', '아름답다', '의미있다']
+    negative_keywords = ['아쉽다', '이해안됨', '별로', '지루하다', '불만']
+    
+    positive_count = sum(1 for word in positive_keywords if word in text)
+    negative_count = sum(1 for word in negative_keywords if word in text)
+    
+    if positive_count > negative_count:
+        return "positive"
+    elif negative_count > positive_count:
+        return "negative"
+    else:
+        return "neutral"
+
+def get_debate_prompt_type():
+    """토론 유형을 랜덤하게 선택"""
+    debate_types = [
+        "opposing_view",     # 반대 관점 제시
+        "evidence_request",  # 근거 요구
+        "alternative_interpretation", # 다른 해석 제시
+        "deeper_analysis",   # 심화 분석 유도
+        "character_perspective" # 인물 관점 전환
+    ]
+    return random.choice(debate_types)
+
+def create_debate_system_prompt(user_message, sentiment, debate_type, user_name, novel_content, file_content):
+    """토론을 위한 시스템 프롬프트 생성"""
+    
+    base_prompt = f"""
+너는 {user_name}와 소설 <별>에 대해 깊이 있는 문학 토론을 하는 동료야.
+사용자가 의견을 제시했을 때, 단순히 동조하지 말고 건설적인 반문이나 다른 관점을 제시해서 토론을 발전시켜야 해.
+
+작품 내용: {novel_content}
+사용자 감상문: {file_content[:300]}
+사용자 현재 의견: {user_message}
+사용자 감정 성향: {sentiment}
+"""
+
+    if debate_type == "opposing_view":
+        return base_prompt + """
+토론 방식: 사용자의 의견에 대해 정중하지만 다른 관점을 제시해. 
+"그런데 다른 시각에서 보면..." 또는 "혹시 이런 가능성은 어떨까?" 식으로 시작해.
+반대 의견을 제시한 후 "너는 이 부분을 어떻게 생각해?" 같은 질문으로 마무리해.
+"""
+
+    elif debate_type == "evidence_request":
+        return base_prompt + """
+토론 방식: 사용자의 의견에 대해 구체적인 근거나 예시를 요구해.
+"그렇게 생각하는 구체적인 이유가 있어?" 또는 "작품에서 어떤 부분이 그런 느낌을 줬어?" 식으로 질문해.
+"""
+
+    elif debate_type == "alternative_interpretation":
+        return base_prompt + """
+토론 방식: 같은 장면이나 인물에 대해 완전히 다른 해석을 제시해.
+"나는 그 장면을 이렇게 봤는데..." 식으로 시작해서 새로운 해석을 제시하고 의견을 물어봐.
+"""
+
+    elif debate_type == "deeper_analysis":
+        return base_prompt + """
+토론 방식: 사용자의 의견을 더 깊이 파고들어 분석하도록 유도해.
+"그런데 왜 작가가 그런 선택을 했을까?" 또는 "그게 전체 주제와 어떤 관련이 있을까?" 같은 심화 질문을 해.
+"""
+
+    elif debate_type == "character_perspective":
+        return base_prompt + """
+토론 방식: 다른 인물의 입장에서 생각해보도록 유도해.
+"만약 네가 소년이라면..." 또는 "누이의 입장에서는 어땠을까?" 같은 관점 전환 질문을 해.
+"""
+
+    return base_prompt + "간결하게 반응하고 열린 질문으로 마무리해."
+
+# 기존 get_claude_response 함수 수정
+def get_claude_response_with_debate(conversation_history, user_message, user_name, novel_content, file_content):
+    """토론 기능이 강화된 Claude 응답 생성"""
+    
+    # 사용자 감정 분석
+    sentiment = analyze_user_sentiment(user_message)
+    
+    # 토론 유형 결정
+    debate_type = get_debate_prompt_type()
+    
+    # 토론용 시스템 프롬프트 생성
+    system_prompt = create_debate_system_prompt(
+        user_message, sentiment, debate_type, user_name, novel_content, file_content
+    )
+    
     headers = {
         "x-api-key": st.secrets["claude"]["api_key"],
         "anthropic-version": "2023-06-01",
         "Content-Type": "application/json"
     }
+    
     data = {
         "model": "claude-sonnet-4-20250514",
         "max_tokens": 512,
         "system": system_prompt,
         "messages": conversation_history
     }
+    
     res = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data)
     if res.status_code == 200:
         return res.json()["content"][0]["text"]
     else:
         return f"❌ Claude API 오류: {res.status_code} - {res.text}"
 
+# 대화 처리 부분 수정 (기존 코드에서 이 부분을 교체)
+if not st.session_state.chat_disabled and uploaded_review:
+    if prompt := st.chat_input("✍️ 대화를 입력하세요"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # 토론 기능이 강화된 응답 생성
+        claude_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] in ["user", "assistant"]]
+        
+        # 기존 단순 응답 대신 토론 응답 사용
+        response = get_claude_response_with_debate(
+            claude_messages, 
+            prompt, 
+            user_name, 
+            novel_content, 
+            st.session_state.file_content
+        )
+        
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        with st.chat_message("assistant"):
+            st.markdown(response)
+
+# 토론 난이도 조절 옵션 추가 (사이드바)
+with st.sidebar:
+    st.subheader("🎯 토론 설정")
+    debate_intensity = st.selectbox(
+        "토론 강도",
+        ["순수한 대화", "가벼운 토론", "적극적 토론", "치열한 토론"],
+        index=1
+    )
+    
+    if debate_intensity == "순수한 대화":
+        st.session_state.debate_mode = False
+    else:
+        st.session_state.debate_mode = True
+        st.session_state.debate_level = debate_intensity
+
+# 토론 통계 표시 (선택사항)
+if "debate_stats" not in st.session_state:
+    st.session_state.debate_stats = {
+        "opposing_views": 0,
+        "evidence_requests": 0,
+        "alternative_interpretations": 0,
+        "deeper_analysis": 0,
+        "character_perspectives": 0
+    }
+
+# 사이드바에 토론 통계 표시
+with st.sidebar:
+    if st.session_state.get("debate_mode", False):
+        st.subheader("📊 토론 현황")
+        st.write(f"반대 의견 제시: {st.session_state.debate_stats['opposing_views']}회")
+        st.write(f"근거 요구: {st.session_state.debate_stats['evidence_requests']}회")
+        st.write(f"다른 해석 제시: {st.session_state.debate_stats['alternative_interpretations']}회")
+        
 def send_email_with_attachment(file, subject, body, filename):
     msg = EmailMessage()
     msg["Subject"] = subject
