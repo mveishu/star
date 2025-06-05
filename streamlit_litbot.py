@@ -168,7 +168,7 @@ if uploaded_review and not st.session_state.start_time:
 elapsed = time.time() - st.session_state.start_time if st.session_state.start_time else 0
 
 # 8분 경고 메시지 (한 번만 표시)
-if elapsed > 10 and elapsed <= 600 and "eight_min_warning" not in st.session_state:
+if elapsed > 480 and elapsed <= 600 and "eight_min_warning" not in st.session_state:
     st.session_state.eight_min_warning = True
     
     # 감상문 분석해서 맞춤형 질문 생성
