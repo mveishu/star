@@ -152,7 +152,7 @@ if not st.session_state.chat_disabled and uploaded_review:
 
         system_prompt = f"""
 너는 {user_name}와 <별>을 읽은 동료야.
-작품 요약: {novel_summary}
+작품 요약: {novel_content}
 감상문 요약: {st.session_state.file_content[:400]}
 
 간결하게 너의 생각을 말하고, 열린 질문으로 마무리해줘.
