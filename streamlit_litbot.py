@@ -43,7 +43,7 @@ def get_claude_response(conversation_history, system_prompt):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "claude-sonnet-4-20250514",
+        "model": "claude-3-haiku-20240307",
         "max_tokens": 512,
         "system": system_prompt,
         "messages": conversation_history
