@@ -106,7 +106,7 @@ if uploaded_review and not st.session_state.start_time:
         f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야.
 작품 요약:
-{novel_summary}
+{novel_content}
 
 {user_name}의 감상문 요약:
 {st.session_state.file_content[:400]}  # 요약 대신 앞부분 사용 가능
