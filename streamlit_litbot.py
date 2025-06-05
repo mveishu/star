@@ -53,12 +53,17 @@ def check_off_topic(user_message):
     off_topic_keywords = [
         "게임", "아이돌", "연예인", "축구", "야구", "음식", "맛집",
         "학교", "선생님", "시험", "숙제", "친구들", "취미", "영화",
-        "유튜브", "틱톡", "인스타", "카카오", "네이버"
+        "유튜브", "틱톡", "인스타", "카카오", "네이버", "놀자", "딴얘기", "다른 얘기"  # "놀자", "딴얘기" 추가
     ]
     
     # 소설 관련 키워드가 하나도 없고, 다른 주제 키워드가 있으면
     has_novel_keyword = any(keyword in user_message for keyword in novel_keywords)
     has_off_topic = any(keyword in user_message for keyword in off_topic_keywords)
+    
+    # 디버깅용
+    print(f"메시지: {user_message}")
+    print(f"소설 키워드 있음: {has_novel_keyword}")
+    print(f"다른 주제 키워드 있음: {has_off_topic}")
     
     # 메시지가 너무 짧지 않고 (3글자 이상), 소설 관련 없으면서 다른 주제면
     if len(user_message) > 3 and not has_novel_keyword and has_off_topic:
