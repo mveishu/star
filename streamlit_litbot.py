@@ -11,7 +11,7 @@ import time
 def load_novel_from_github():
     try:
         # GitHub raw URL 형식으로 수정 필요
-        url = "별_황순원.txt"
+        url = "https://raw.githubusercontent.com/mveishu/star/main/별_황순원.txt"
         response = requests.get(url)
         response.encoding = 'utf-8'
         if response.status_code == 200:
