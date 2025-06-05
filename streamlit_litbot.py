@@ -330,7 +330,7 @@ if not st.session_state.chat_disabled and uploaded_review:
                 response = get_claude_response(claude_messages, system_prompt)
                 st.session_state.messages.append({"role": "assistant", "content": response})
                 with st.chat_message("assistant"):
-                st.markdown(response)
+                    st.markdown(response)
 
 if st.session_state.chat_disabled:
     st.markdown("---")
