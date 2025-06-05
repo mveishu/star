@@ -119,6 +119,14 @@ if uploaded_review and not st.session_state.start_time:
     st.session_state.messages.append({"role": "assistant", "content": first_question})
 
 elapsed = time.time() - st.session_state.start_time if st.session_state.start_time else 0
+
+# 8분 경고 메시지 (한 번만 표시)
+if elapsed > 480 and elapsed <= 600 and "eight_min_warning" not in st.session_state:
+    st.session_state.eight_min_warning = True
+    warning_msg = "우리 대화에 이제 시간이 얼마 남지 않았어. 마지막으로 꼭 물어보고 싶은 게 있는데..."
+    st.session_state.messages.append({"role": "assistant", "content": warning_msg})
+
+# 10분 후 종료
 if elapsed > 600 and not st.session_state.final_prompt_mode:
     st.session_state.final_prompt_mode = True
     st.session_state.chat_disabled = True
