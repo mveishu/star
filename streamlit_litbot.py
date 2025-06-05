@@ -282,11 +282,7 @@ for m in st.session_state.messages:
 
 if not st.session_state.chat_disabled and uploaded_review:
     if prompt := st.chat_input("✍️ 대화를 입력하세요"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-# 부적절한 발언 체크
+        # 먼저 부적절한 발언 체크
         is_inappropriate, inappropriate_word = check_inappropriate_content(prompt)
         
         if is_inappropriate:
@@ -295,23 +291,19 @@ if not st.session_state.chat_disabled and uploaded_review:
             st.session_state.messages.append({"role": "assistant", "content": feedback_msg})
             with st.chat_message("assistant"):
                 st.markdown(feedback_msg)
+        elif check_off_topic(prompt):
+            # 주제 이탈 체크
+            redirect_msg = create_redirect_message()
+            st.session_state.messages.append({"role": "assistant", "content": redirect_msg})
+            with st.chat_message("assistant"):
+                st.markdown(redirect_msg)
         else:
             # 정상 대화 진행
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.markdown(prompt)
-
-if not is_inappropriate:
-    # 주제 이탈 체크 추가
-    if check_off_topic(prompt):
-        redirect_msg = create_redirect_message()
-        st.session_state.messages.append({"role": "assistant", "content": redirect_msg})
-        with st.chat_message("assistant"):
-            st.markdown(redirect_msg)
-    else:
-        # 정상 소설 토론 진행
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        # 기존 코드...
+            
+            # 시스템 프롬프트부터 시작하는 기존 코드...
         
         system_prompt = f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 같은 반 친구야. 
