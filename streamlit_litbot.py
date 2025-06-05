@@ -38,7 +38,7 @@ def check_inappropriate_content(user_message):
 
 def create_feedback_message(inappropriate_expression):
     """부적절한 발언에 대한 피드백 메시지 생성"""
-    return f"어? 지금 '{inappropriate_expression}' 표현이 좀 그런 것 같아. 우리 서로 존중하면서 문학 이야기하자. 다시 말해줄래?"
+    return f"잠깐, '{inappropriate_expression}' 같은 표현은 좀 그런 것 같아. 우리 서로 존중하면서 <별>에 대해 이야기하자. 그런 표현 말고 네 생각을 다시 말해줄래? 소설에서 어떤 부분이 그런 감정을 불러일으켰는지 궁금해."
 
 def check_off_topic(user_message):
     """소설 <별> 주제 이탈 감지"""
