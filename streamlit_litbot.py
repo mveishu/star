@@ -126,7 +126,7 @@ def create_final_question(unused_topics, review_content):
     
     if unused_topics:
         chosen_topic = unused_topics[0]  # 첫 번째 미사용 주제 선택
-        return final_questions.get(chosen_topic, "마지막으로, 이 소설에서 가장 인상 깊었던 부분이 뭐야?")
+        return final_questions.get(chosen_topic, "마지막으로, 꼭 물어보고 싶었던 부분이 있어! 이 소설에서 가장 인상 깊었던 부분이 뭐야?")
     else:
         return "마지막으로, 이 소설을 읽고 네가 가장 많이 생각하게 된 건 뭐야?"
 
