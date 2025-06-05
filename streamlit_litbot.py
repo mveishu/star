@@ -289,12 +289,17 @@ if not st.session_state.chat_disabled and uploaded_review:
         # 먼저 부적절한 발언 체크
         is_inappropriate, inappropriate_word = check_inappropriate_content(prompt)
         
+        # 사용자 메시지 먼저 표시 (공통)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
         if is_inappropriate:
             # 부적절한 발언 시 피드백만 표시
             feedback_msg = create_feedback_message(inappropriate_word)
             st.session_state.messages.append({"role": "assistant", "content": feedback_msg})
             with st.chat_message("assistant"):
-                st.markdown(feedback_msg)
+              st.markdown(feedback_msg)
         elif check_off_topic(prompt):
             # 주제 이탈 체크
             redirect_msg = create_redirect_message()
@@ -302,10 +307,7 @@ if not st.session_state.chat_disabled and uploaded_review:
             with st.chat_message("assistant"):
                 st.markdown(redirect_msg)
         else:
-            # 정상 대화 진행
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            with st.chat_message("user"):
-                st.markdown(prompt)
+            # 정상 대화 진행 (사용자 메시지 표시는 이미 위에서 했으므로 제거)
         
                 system_prompt = f"""
                 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 
