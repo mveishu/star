@@ -40,6 +40,44 @@ def create_feedback_message(inappropriate_expression):
     """부적절한 발언에 대한 피드백 메시지 생성"""
     return f"어? 지금 '{inappropriate_expression}' 표현이 좀 그런 것 같아. 우리 서로 존중하면서 문학 이야기하자. 다시 말해줄래?"
 
+def check_off_topic(user_message):
+    """소설 <별> 주제 이탈 감지"""
+    
+    # 소설 관련 키워드들
+    novel_keywords = [
+        "소년", "누이", "어머니", "별", "과수노파", "죽음", "가족", 
+        "소설", "작품", "황순원", "이야기", "인물", "주인공"
+    ]
+    
+    # 완전히 다른 주제들
+    off_topic_keywords = [
+        "게임", "아이돌", "연예인", "축구", "야구", "음식", "맛집",
+        "학교", "선생님", "시험", "숙제", "친구들", "취미", "영화",
+        "유튜브", "틱톡", "인스타", "카카오", "네이버"
+    ]
+    
+    # 소설 관련 키워드가 하나도 없고, 다른 주제 키워드가 있으면
+    has_novel_keyword = any(keyword in user_message for keyword in novel_keywords)
+    has_off_topic = any(keyword in user_message for keyword in off_topic_keywords)
+    
+    # 메시지가 너무 짧지 않고 (3글자 이상), 소설 관련 없으면서 다른 주제면
+    if len(user_message) > 3 and not has_novel_keyword and has_off_topic:
+        return True
+    
+    return False
+
+def create_redirect_message():
+    """주제 이탈 시 다시 소설로 유도하는 메시지"""
+    redirect_messages = [
+        "어? 갑자기 다른 이야기네! 우리 <별> 이야기 계속하자. 아까 얘기하던 부분에서...",
+        "아, 그것도 재미있겠지만 우리 소설 토론 시간이야! <별>에서 가장 기억에 남는 장면이 뭐야?",
+        "잠깐, 우리 지금 문학 토론 중이잖아! 소설 <별>로 다시 돌아가자.",
+        "그런 얘기도 좋지만, 우리 <별> 이야기 마저 하자! 소년이나 누이에 대해 더 얘기해볼래?"
+    ]
+    
+    import random
+    return random.choice(redirect_messages)
+
 def analyze_review_for_final_question(review_content, conversation_messages):
     """감상문에서 아직 다루지 않은 주요 포인트 찾기"""
     
@@ -248,6 +286,33 @@ if not st.session_state.chat_disabled and uploaded_review:
         with st.chat_message("user"):
             st.markdown(prompt)
 
+# 부적절한 발언 체크
+        is_inappropriate, inappropriate_word = check_inappropriate_content(prompt)
+        
+        if is_inappropriate:
+            # 부적절한 발언 시 피드백만 표시
+            feedback_msg = create_feedback_message(inappropriate_word)
+            st.session_state.messages.append({"role": "assistant", "content": feedback_msg})
+            with st.chat_message("assistant"):
+                st.markdown(feedback_msg)
+        else:
+            # 정상 대화 진행
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+if not is_inappropriate:
+    # 주제 이탈 체크 추가
+    if check_off_topic(prompt):
+        redirect_msg = create_redirect_message()
+        st.session_state.messages.append({"role": "assistant", "content": redirect_msg})
+        with st.chat_message("assistant"):
+            st.markdown(redirect_msg)
+    else:
+        # 정상 소설 토론 진행
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        # 기존 코드...
+        
         system_prompt = f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 같은 반 친구야. 
 작품 전문/요약: {novel_content}
