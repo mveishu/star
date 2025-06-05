@@ -6,6 +6,53 @@ import smtplib
 import requests
 import time
 
+def analyze_review_for_final_question(review_content, conversation_messages):
+    """감상문에서 아직 다루지 않은 주요 포인트 찾기"""
+    
+    # 감상문의 주요 키워드들
+    review_keywords = {
+        "소년": ["소년", "아이", "어린"],
+        "누이": ["누이", "누나", "언니"],  
+        "별": ["별", "밤하늘", "빛"],
+        "어머니": ["어머니", "엄마", "모친"],
+        "깨달음": ["깨달", "이해", "알게", "느끼"],
+        "슬픔": ["슬프", "아프", "눈물", "울"],
+        "가족": ["가족", "형제", "혈육"]
+    }
+    
+    # 대화에서 이미 언급된 키워드 찾기
+    conversation_text = " ".join([msg["content"] for msg in conversation_messages])
+    
+    # 감상문에는 있지만 대화에서 안 다룬 주제 찾기
+    unused_topics = []
+    for topic, keywords in review_keywords.items():
+        in_review = any(keyword in review_content for keyword in keywords)
+        in_conversation = any(keyword in conversation_text for keyword in keywords)
+        
+        if in_review and not in_conversation:
+            unused_topics.append(topic)
+    
+    return unused_topics
+
+def create_final_question(unused_topics, review_content):
+    """미사용 주제를 바탕으로 마지막 질문 생성"""
+    
+    final_questions = {
+        "소년": "네가 감상문에서 소년에 대해 썼는데, 소년의 마음 변화 중에서 가장 중요한 순간이 언제였다고 생각해?",
+        "누이": "감상문에서 누이를 언급했는데, 누이가 소년에게 끝까지 사랑을 베푼 이유가 뭐라고 생각해?",
+        "별": "네가 '별'에 대해 쓴 부분이 인상적이었어. 소설에서 별이 어떤 의미인지 너만의 해석을 들려줄래?",
+        "어머니": "감상문에서 어머니를 언급했는데, 어머니의 부재가 이 가족에게 어떤 영향을 줬다고 봐?",
+        "깨달음": "네가 쓴 '깨달음' 부분이 궁금해. 소년이 마지막에 진짜 깨달은 게 뭐라고 생각해?",
+        "슬픔": "감상문에서 슬픔에 대해 썼는데, 이 소설에서 가장 슬픈 장면이 어디였어?",
+        "가족": "가족 관계에 대한 네 생각이 궁금해. 이 소설이 가족의 의미에 대해 뭘 말하고 있다고 봐?"
+    }
+    
+    if unused_topics:
+        chosen_topic = unused_topics[0]  # 첫 번째 미사용 주제 선택
+        return final_questions.get(chosen_topic, "마지막으로, 이 소설에서 가장 인상 깊었던 부분이 뭐야?")
+    else:
+        return "마지막으로, 이 소설을 읽고 네가 가장 많이 생각하게 된 건 뭐야?"
+
 # GitHub에서 소설 전문 가져오기
 @st.cache_data
 def load_novel_from_github():
@@ -43,7 +90,7 @@ def get_claude_response(conversation_history, system_prompt):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "claude-3-haiku-20240307",
+        "model": "claude-sonnet-4-20250514",
         "max_tokens": 512,
         "system": system_prompt,
         "messages": conversation_history
@@ -121,9 +168,14 @@ if uploaded_review and not st.session_state.start_time:
 elapsed = time.time() - st.session_state.start_time if st.session_state.start_time else 0
 
 # 8분 경고 메시지 (한 번만 표시)
-if elapsed > 480 and elapsed <= 600 and "eight_min_warning" not in st.session_state:
+if elapsed > 10 and elapsed <= 600 and "eight_min_warning" not in st.session_state:
     st.session_state.eight_min_warning = True
-    warning_msg = "우리 대화에 이제 시간이 얼마 남지 않았어. 마지막으로 꼭 물어보고 싶은 게 있는데..."
+    
+    # 감상문 분석해서 맞춤형 질문 생성
+    unused_topics = analyze_review_for_final_question(st.session_state.file_content, st.session_state.messages)
+    final_question = create_final_question(unused_topics, st.session_state.file_content)
+    
+    warning_msg = f"우리 대화 시간이 얼마 남지 않았네. 마지막으로, {final_question}"
     st.session_state.messages.append({"role": "assistant", "content": warning_msg})
 
 # 10분 후 종료
@@ -135,7 +187,7 @@ if elapsed > 600 and not st.session_state.final_prompt_mode:
 지금은 마지막 응답이야. 사용자와 나눈 대화를 정리하고 인사로 마무리해줘.
 질문은 하지 마. 짧고 따뜻하게 끝내줘. 3문장 이내로 말해줘.
 
-작품 요약: {novel_summary}
+작품 요약: {novel_content}
 감상문 요약: {st.session_state.file_content[:400]}
 """
     claude_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] in ["user", "assistant"]]
