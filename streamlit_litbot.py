@@ -226,7 +226,7 @@ if uploaded_review and not st.session_state.start_time:
     st.session_state.start_time = time.time()
     st.session_state.messages.append({
         "role": "assistant",
-        "content": f"안녕, {user_name}! 감상문 잘 읽었어. 우리 같이 <별> 이야기 나눠볼까?"
+        "content": f"안녕, {user_name}! 난 리토야. 우리 아까 읽은 소설 <별>에 대해 함께 이야기해볼까? 네가 적은 감상문 잘 읽었어!"
     })
 
     first_question = get_claude_response(
