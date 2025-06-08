@@ -210,7 +210,7 @@ else:
     st.warning("👤 이름을 입력해주세요.")
     st.stop()
 
-uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt)", type=["txt"], key="review")
+uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt, .pdf)", type=["txt", "pdf"], key="review_upload")
 
 def extract_text_from_pdf(file):
     pdf = fitz.open(stream=file.read(), filetype="pdf")
