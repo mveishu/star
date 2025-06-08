@@ -132,15 +132,6 @@ def create_final_question(unused_topics, review_content):
     else:
         return "마지막으로, 이 소설을 읽고 네가 가장 많이 생각하게 된 건 뭐야?"
 
-uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt)", type=["txt"], key="review")
-
-def extract_text_from_pdf(file):
-    pdf = fitz.open(stream=file.read(), filetype="pdf")
-    text = ""
-    for page in pdf:
-        text += page.get_text()
-    return text
-
 # GitHub에서 소설 전문 가져오기
 @st.cache_data
 def load_novel_from_github():
@@ -218,6 +209,15 @@ if user_lastname and user_firstname:
 else:
     st.warning("👤 이름을 입력해주세요.")
     st.stop()
+
+uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt)", type=["txt"], key="review")
+
+def extract_text_from_pdf(file):
+    pdf = fitz.open(stream=file.read(), filetype="pdf")
+    text = ""
+    for page in pdf:
+        text += page.get_text()
+    return text
 
 uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt, .pdf)", type=["txt", "pdf"], key="review")
 
