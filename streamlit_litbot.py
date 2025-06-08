@@ -220,13 +220,15 @@ def extract_text_from_pdf(file):
     return text
 
 if uploaded_review and "review_sent" not in st.session_state:
-   if uploaded_review.name.endswith(".txt"):
-    file_content = uploaded_review.read().decode("utf-8")
-elif uploaded_review.name.endswith(".pdf"):
-    file_content = extract_text_from_pdf(uploaded_review)
-else:
-    st.error("지원되지 않는 파일 형식입니다.")
-    st.stop()
+    filename = uploaded_review.name.lower()  # ← 여기서 안전하게 확장자 확인
+
+    if filename.endswith(".txt"):
+        file_content = uploaded_review.read().decode("utf-8")
+    elif filename.endswith(".pdf"):
+        file_content = extract_text_from_pdf(uploaded_review)
+    else:
+        st.error("지원되지 않는 파일 형식입니다.")
+        st.stop()
 
     uploaded_review.seek(0)
     send_email_with_attachment(uploaded_review, f"[감상문] {user_name}_감상문", "사용자가 업로드한 감상문입니다.", uploaded_review.name)
