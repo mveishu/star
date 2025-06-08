@@ -219,8 +219,6 @@ def extract_text_from_pdf(file):
         text += page.get_text()
     return text
 
-uploaded_review = st.file_uploader("📄 감상문 업로드 (.txt, .pdf)", type=["txt", "pdf"], key="review")
-
 if uploaded_review and "review_sent" not in st.session_state:
    if uploaded_review.name.endswith(".txt"):
     file_content = uploaded_review.read().decode("utf-8")
