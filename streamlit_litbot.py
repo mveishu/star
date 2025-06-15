@@ -309,7 +309,7 @@ for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
 
-if not st.session_state.chat_disabled and uploaded_review:
+if not st.session_state.get("chat_disabled") and st.session_state.get("file_content"):
     if prompt := st.chat_input("✍️ 대화를 입력하세요"):
         # 먼저 부적절한 발언 체크
         is_inappropriate, inappropriate_word = check_inappropriate_content(prompt)
