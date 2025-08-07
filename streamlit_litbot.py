@@ -162,9 +162,8 @@ else:
     """
     st.warning("⚠️ 소설 전문 로딩 실패, 요약 사용 중")
 
-import openai
-
-openai.api_key = st.secrets["openai"]["api_key"]
+from openai import OpenAI
+client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 def get_chatbot_response(conversation_history, system_prompt):
     try:
@@ -426,5 +425,6 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
