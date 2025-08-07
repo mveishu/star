@@ -292,7 +292,7 @@ if st.session_state.get("review_sent") and not st.session_state.get("start_time"
     [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘. '나는 네가 A부분에서 B에 주목한 게 인상적이었어. 왜냐면 나는 같은 장면에서 C가 더 신경쓰였거든' 같은 방식으로"}],
     f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 같은 책을 읽은 친구처럼 행동해.
-작품 전문: {novel_content[:1000]}
+작품 전문: {novel_content}
 {user_name}의 감상문: {st.session_state.file_content}
 
 감상문에서 언급된 내용에 대해 다른 시각을 제시하면서 자연스럽게 대화를 시작해.
@@ -323,7 +323,7 @@ if elapsed > 600 and not st.session_state.final_prompt_mode:
 질문은 하지 마. 짧고 따뜻하게 끝내줘. 3문장 이내로 말해줘.
 
 작품 요약: {novel_content}
-감상문 요약: {st.session_state.file_content[:400]}
+감상문 요약: {st.session_state.file_content}
 """
     claude_messages = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages if m["role"] in ["user", "assistant"]]
     response = get_chatbot_response(claude_messages, final_prompt)
@@ -370,7 +370,7 @@ if not st.session_state.get("chat_disabled") and st.session_state.get("file_cont
         
                 system_prompt = f"""
                 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 
-                작품 전문: {novel_content[:1000]}
+                작품 전문: {novel_content}
                 감상문: {st.session_state.file_content}
 
                 **중요한 원칙**:
@@ -434,6 +434,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
