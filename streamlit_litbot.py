@@ -308,7 +308,7 @@ system_prompt = f"""
 감상문에서 언급된 내용에 대해 다른 시각을 제시하면서 자연스럽게 대화를 시작해.
 """
 
-    first_question = get_chatbot_response(
+first_question = get_chatbot_response(
     [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘."}],
     system_prompt
 )
@@ -450,6 +450,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
