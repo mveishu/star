@@ -38,6 +38,10 @@ def check_inappropriate_content(user_message):
     
     return False, None
 
+def is_meaningful_review(text):
+    stripped = text.strip().lower()
+    return len(stripped) >= 20 and stripped not in ["jjj", "test", "123", "내용 없음", " ", ""]
+
 def create_feedback_message(inappropriate_expression):
     """부적절한 발언에 대한 피드백 메시지 생성"""
     return f"잠깐, '{inappropriate_expression}' 같은 표현은 좀 그런 것 같아. 우리 서로 존중하면서 <별>에 대해 이야기하자. 그런 표현 말고 네 생각을 다시 말해줄래? 소설에서 어떤 부분이 그런 감정을 불러일으켰는지 궁금해."
@@ -288,9 +292,17 @@ if st.session_state.get("review_sent") and not st.session_state.get("start_time"
         "content": f"안녕, {user_name}! 난 리토야. 우리 아까 읽은 소설 <별>에 대해 함께 이야기해볼까? 네가 적은 감상문 잘 읽었어!"
     })
 
+if is_meaningful_review(st.session_state.file_content):
+    review_content = st.session_state.file_content
+    include_review = True
+else:
+    review_content = ""
+    include_review = False
+    
     first_question = get_chatbot_response(
-    [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘. '나는 네가 A부분에서 B에 주목한 게 인상적이었어. 왜냐면 나는 같은 장면에서 C가 더 신경쓰였거든' 같은 방식으로"}],
-    f"""
+    [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘."}],
+    system_prompt
+)
 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 같은 책을 읽은 친구처럼 행동해.
 작품 전문: {novel_content[:1000]}
 {user_name}의 감상문: {st.session_state.file_content}
@@ -380,6 +392,8 @@ if not st.session_state.get("chat_disabled") and st.session_state.get("file_cont
                 4. 사용자와 **다른 해석이나 반대 의견**을 적극적으로 제시하기
                 5. 계속 질문하면서 사용자가 스스로 해석하도록 유도
                 6. 소설 원문의 구체적 장면이나 대사를 언급하며 토론
+                7. 감상문에 없는 말은 절대 상상하거나 만들어내지 말 것
+                8. 감상문에 실제 존재하는 문장이나 표현만 언급할 것
 
                 **말투**:
                 - 친근한 반말 사용 ("그런데 말이야", "나는 좀 다르게 봤어", "진짜?", "어?")
@@ -434,6 +448,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
