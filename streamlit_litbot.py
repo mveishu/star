@@ -292,6 +292,15 @@ if st.session_state.get("review_sent") and not st.session_state.get("start_time"
         "content": f"안녕, {user_name}! 난 리토야. 우리 아까 읽은 소설 <별>에 대해 함께 이야기해볼까? 네가 적은 감상문 잘 읽었어!"
     })
 
+def is_meaningful_review(text):
+    stripped = text.strip().lower()
+    return len(stripped) >= 20 and stripped not in ["jjj", "test", "123", "내용 없음", " ", ""]
+
+if not is_meaningful_review(st.session_state.file_content):
+    review_content = "(감상문이 비어 있어. 감상문 내용을 언급하지 말고 작품 자체로 이야기해줘.)"
+else:
+    review_content = st.session_state.file_content
+    
     first_question = get_chatbot_response(
     [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘. '나는 네가 A부분에서 B에 주목한 게 인상적이었어. 왜냐면 나는 같은 장면에서 C가 더 신경쓰였거든' 같은 방식으로"}],
     f"""
@@ -438,6 +447,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
