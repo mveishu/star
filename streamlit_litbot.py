@@ -312,7 +312,7 @@ first_question = get_chatbot_response(
     [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘."}],
     system_prompt
 )
-    st.session_state.messages.append({"role": "assistant", "content": first_question})
+st.session_state.messages.append({"role": "assistant", "content": first_question})
 
 elapsed = time.time() - st.session_state.start_time if st.session_state.start_time else 0
 
@@ -450,6 +450,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
