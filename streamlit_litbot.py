@@ -195,14 +195,14 @@ def get_chatbot_response(conversation_history, system_prompt):
             gpt_messages = [{"role": "system", "content": system_prompt}] + conversation_history
             from openai import OpenAI
 
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+    client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
-gpt_res = client.chat.completions.create(
-    model="gpt-4o",
-    messages=gpt_messages,
-    max_tokens=512,
-    temperature=0.8,
-)
+    gpt_res = client.chat.completions.create(
+        model="gpt-4o",
+        messages=gpt_messages,
+        max_tokens=512,
+        temperature=0.8,
+    )
 
 return gpt_res.choices[0].message.content
 
@@ -432,6 +432,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
