@@ -401,7 +401,7 @@ if not st.session_state.get("chat_disabled") and st.session_state.get("file_cont
                 대화 방식:
                 - "나는 그 장면에서 이런 느낌이었는데, 너는 어떻게 봤어?"
                 - "어? 정말? 나는 오히려 '나'가 더 복잡했던 것 같은데... 왜 그렇게 생각해?"
-                - "그런데 혹시 마들렌 입장에서는 달랐을 수도 있지 않을까?"
+                - "그런데 혹시 동생 입장에서는 달랐을 수도 있지 않을까?"
                 - "음... 근데 그게 정말 그런 의미일까? 나는 좀 다르게 봤거든"
 
                 3문장 이내로 친근한 반말로 **반문하면서** 대화해줘.
@@ -447,6 +447,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
