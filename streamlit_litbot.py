@@ -298,18 +298,19 @@ if is_meaningful_review(st.session_state.file_content):
 else:
     review_content = ""
     include_review = False
-    
-    first_question = get_chatbot_response(
-    [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘."}],
-    system_prompt
-)
-"""
+
+# ✅ system_prompt를 먼저 정의 (문자열 블록으로)
+system_prompt = f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 같은 책을 읽은 친구처럼 행동해.
 작품 전문: {novel_content}
-{user_name}의 감상문: {st.session_state.file_content}
+{user_name}의 감상문: {review_content}
 
 감상문에서 언급된 내용에 대해 다른 시각을 제시하면서 자연스럽게 대화를 시작해.
 """
+
+    first_question = get_chatbot_response(
+    [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘."}],
+    system_prompt
 )
     st.session_state.messages.append({"role": "assistant", "content": first_question})
 
@@ -449,6 +450,7 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
+
 
 
 
