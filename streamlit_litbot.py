@@ -10,7 +10,7 @@ import fitz  # PyMuPDF
 
 def check_inappropriate_content(user_message):
     """부적절한 발언 감지 (문맥 고려)"""
-
+    
     # 명확히 부적절한 표현들만
     clearly_inappropriate = [
         "ㅂㅅ", "병신", "미친놈", "미친년",
@@ -37,10 +37,6 @@ def check_inappropriate_content(user_message):
                     return True, main_word + " " + trigger
     
     return False, None
-    
-def is_meaningful_review(text):
-    stripped = text.strip().lower()
-    return len(stripped) >= 20 and stripped not in ["jjj", "test", "123", "내용 없음", " ", ""]
 
 def create_feedback_message(inappropriate_expression):
     """부적절한 발언에 대한 피드백 메시지 생성"""
@@ -291,12 +287,12 @@ if st.session_state.get("review_sent") and not st.session_state.get("start_time"
         "role": "assistant",
         "content": f"안녕, {user_name}! 난 리토야. 우리 아까 읽은 소설 <별>에 대해 함께 이야기해볼까? 네가 적은 감상문 잘 읽었어!"
     })
-    
+
     first_question = get_chatbot_response(
     [{"role": "user", "content": "감상문을 읽고 사용자와 다른 관점을 제시하면서 자연스럽게 질문해줘. '나는 네가 A부분에서 B에 주목한 게 인상적이었어. 왜냐면 나는 같은 장면에서 C가 더 신경쓰였거든' 같은 방식으로"}],
     f"""
 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 같은 책을 읽은 친구처럼 행동해.
-작품 전문: {novel_content}
+작품 전문: {novel_content[:1000]}
 {user_name}의 감상문: {st.session_state.file_content}
 
 감상문에서 언급된 내용에 대해 다른 시각을 제시하면서 자연스럽게 대화를 시작해.
@@ -374,7 +370,7 @@ if not st.session_state.get("chat_disabled") and st.session_state.get("file_cont
         
                 system_prompt = f"""
                 너는 {user_name}와 함께 소설 <별>을 읽은 동료 학습자야. 
-                작품 전문: {novel_content}
+                작품 전문: {novel_content[:1000]}
                 감상문: {st.session_state.file_content}
 
                 **중요한 원칙**:
@@ -392,7 +388,7 @@ if not st.session_state.get("chat_disabled") and st.session_state.get("file_cont
                 대화 방식:
                 - "나는 그 장면에서 이런 느낌이었는데, 너는 어떻게 봤어?"
                 - "어? 정말? 나는 오히려 '나'가 더 복잡했던 것 같은데... 왜 그렇게 생각해?"
-                - "그런데 혹시 동생 입장에서는 달랐을 수도 있지 않을까?"
+                - "그런데 혹시 마들렌 입장에서는 달랐을 수도 있지 않을까?"
                 - "음... 근데 그게 정말 그런 의미일까? 나는 좀 다르게 봤거든"
 
                 3문장 이내로 친근한 반말로 **반문하면서** 대화해줘.
@@ -438,12 +434,6 @@ if st.session_state.chat_disabled:
     if st.session_state.get("reflection_sent"):
         st.success("🎉 모든 절차가 완료되었습니다. 실험에 참여해주셔서 감사합니다!")
         st.stop()
-
-
-
-
-
-
 
 
 
